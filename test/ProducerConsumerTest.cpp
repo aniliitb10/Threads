@@ -2,9 +2,9 @@
 #include "../lib/Consumer.h"
 #include <mutex>
 #include <condition_variable>
-#include <thread>
 #include <gtest/gtest.h>
 #include <random>
+#include <thread>
 
 struct ProducerConsumerTest : public ::testing::Test
 {
@@ -15,8 +15,10 @@ struct ProducerConsumerTest : public ::testing::Test
 
 TEST_F(ProducerConsumerTest, basicTest)
 {
+  const int MaxContainerSize{2};
+  const int MaxThreadCount{100};
+
   Producer::ContainerType container;
-  const int MaxContainerSize{5};
   Producer producer{container, _cvEmpty, _cvFull, _mutex, MaxContainerSize};
   Consumer consumer{container, _cvEmpty, _cvFull, _mutex};
 
@@ -29,7 +31,7 @@ TEST_F(ProducerConsumerTest, basicTest)
 
   std::uniform_int_distribution<std::mt19937::result_type> dist(0,1);
 
-  for (int index = 0; index < 100; ++index)
+  for (int index = 0; index < MaxThreadCount; ++index)
   {
     if (dist(randomNumGenerator) == 0)
     {
@@ -48,13 +50,13 @@ TEST_F(ProducerConsumerTest, basicTest)
   // intentionally sleeping, so that all other threads are done
   std::this_thread::sleep_for(std::chrono::seconds{1});
 
-  if (consumeCount > produceCount)
+  const int overConsumed = (consumeCount - produceCount);
+  if (overConsumed > 0)
   {
     EXPECT_TRUE(container.empty());
-    std::cout << "Log: Adding  " << (consumeCount - produceCount)  << " producer threads to let consumers finish" << std::endl;
+    std::cout << "Log: Adding  " << overConsumed  << " producer threads to let consumers finish" << std::endl;
 
-    //FIXME: something is wrong here, the program waits forever in this case
-    for (int index = 0; index < (consumeCount - produceCount); ++index)
+    for (int index = 0; index < overConsumed; ++index)
     {
       threadVec.emplace_back(&Producer::produce, producer);
       produceCount++;
@@ -85,11 +87,9 @@ TEST_F(ProducerConsumerTest, basicTest)
     }
   }
 
-  for (unsigned int index = 0; index < threadVec.size(); ++index)
+  for (auto& thread : threadVec)
   {
-    // keeping track of number of joined threads
-    std::cout << "joining thread # " << index << std::endl;
-    threadVec.at(index).join();
+    thread.join();
   }
 
   int producersMoreThanConsumers = produceCount - consumeCount;

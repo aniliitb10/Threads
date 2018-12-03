@@ -1,3 +1,6 @@
+#include <iostream>
+#include <thread>
+
 #include "Consumer.h"
 
 Consumer::Consumer(ContainerType& container_, std::condition_variable& cvEmpty_, std::condition_variable& cvFull_, std::mutex& mutex_):
@@ -10,6 +13,7 @@ void Consumer::consume()
 {
   {
     std::unique_lock<std::mutex> lock{_mutex};
+
     while (_container.empty())
     {
       _cvEmpty.wait(lock);

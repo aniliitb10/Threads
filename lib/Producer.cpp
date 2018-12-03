@@ -1,3 +1,5 @@
+#include <iostream>
+#include <thread>
 #include "Producer.h"
 
 Producer::Producer(ContainerType& container_, std::condition_variable& cvEmpty_, std::condition_variable& cvFull_,
@@ -12,6 +14,7 @@ void Producer::produce()
 {
   {
     std::unique_lock<std::mutex> lock(_mutex);
+
     while(_container.size() >= _maxSize)
     {
       _cvFull.wait(lock);
