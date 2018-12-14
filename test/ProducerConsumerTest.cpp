@@ -1,5 +1,7 @@
 #include "../lib/Producer.h"
 #include "../lib/Consumer.h"
+#include "TestUtil.h"
+
 #include <mutex>
 #include <condition_variable>
 #include <gtest/gtest.h>
@@ -26,14 +28,10 @@ TEST_F(ProducerConsumerTest, basicTest)
   int consumeCount = 0;
 
   std::vector<std::thread> threadVec;
-  std::mt19937 randomNumGenerator;
-  randomNumGenerator.seed(std::random_device{}());
-
-  std::uniform_int_distribution<std::mt19937::result_type> dist(0,1);
 
   for (int index = 0; index < MaxThreadCount; ++index)
   {
-    if (dist(randomNumGenerator) == 0)
+    if (TestUtil::getNumberBetween0And1() == 0)
     {
       threadVec.emplace_back(&Consumer::consume, consumer);
       consumeCount++;
