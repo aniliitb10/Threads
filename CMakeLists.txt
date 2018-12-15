@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(Threads)
 
 set(CMAKE_CXX_STANDARD 17)
-file(GLOB lib_source_files "lib/*.cpp")
+file(GLOB lib_source_files "lib/*/*.cpp")
 
 set (GTEST_LIB_PATH "/home/anil/lib/googletest-release-1.8.0/googletest/libgtest.a")
 set (GTEST_INCLUDE_PATH "/home/anil/lib/googletest-release-1.8.0/googletest/include/")

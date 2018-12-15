@@ -1,5 +1,5 @@
-#include "../lib/Producer.h"
-#include "../lib/Consumer.h"
+#include "../lib/producer/Producer.h"
+#include "../lib/consumer/Consumer.h"
 #include "TestUtil.h"
 
 #include <mutex>
@@ -33,17 +33,17 @@ TEST_F(ProducerConsumerTest, basicTest)
   {
     if (TestUtil::getNumberBetween0And1() == 0)
     {
-      threadVec.emplace_back(&Consumer::consume, consumer);
+      threadVec.emplace_back(&Consumer::consume, std::ref(consumer));
       consumeCount++;
     }
     else
     {
-      threadVec.emplace_back(&Producer::produce, producer);
+      threadVec.emplace_back(&Producer::produce, std::ref(producer));
       produceCount++;
     }
   }
 
-  std::cout << "Log: produceCount: " << produceCount << ", consumeCount: " << consumeCount << std::endl;
+  // std::cout << "Log: produceCount: " << produceCount << ", consumeCount: " << consumeCount << std::endl;
 
   // intentionally sleeping, so that all other threads are done
   std::this_thread::sleep_for(std::chrono::seconds{1});
@@ -52,11 +52,11 @@ TEST_F(ProducerConsumerTest, basicTest)
   if (overConsumed > 0)
   {
     EXPECT_TRUE(container.empty());
-    std::cout << "Log: Adding  " << overConsumed  << " producer threads to let consumers finish" << std::endl;
+    // std::cout << "Log: Adding  " << overConsumed  << " producer threads to let consumers finish" << std::endl;
 
     for (int index = 0; index < overConsumed; ++index)
     {
-      threadVec.emplace_back(&Producer::produce, producer);
+      threadVec.emplace_back(&Producer::produce, std::ref(producer));
       produceCount++;
     }
 
@@ -74,7 +74,7 @@ TEST_F(ProducerConsumerTest, basicTest)
 
       for (int index = 0; index < overProduced; ++index)
       {
-        threadVec.emplace_back(&Consumer::consume, consumer);
+        threadVec.emplace_back(&Consumer::consume, std::ref(consumer));
         consumeCount++;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds{500});
@@ -84,6 +84,8 @@ TEST_F(ProducerConsumerTest, basicTest)
       EXPECT_EQ(produceCount - consumeCount, container.size());
     }
   }
+
+  EXPECT_EQ(Producer::getNumOfInstance(), 1);
 
   for (auto& thread : threadVec)
   {

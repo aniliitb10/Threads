@@ -1,4 +1,4 @@
-#include "../lib/PCQueue.h"
+#include "../lib/pcQueue/PCQueue.h"
 #include "TestUtil.h"
 
 #include <gtest/gtest.h>
@@ -10,6 +10,7 @@ struct PCQueueTest : public ::testing::Test
   void producerConsumerTest(size_t pcqSize_, size_t threadCount_)
   {
     PCQueue pcq{pcqSize_};
+
     size_t consumerCount = 0, producerCount = 0;
     std::vector<std::thread> threadVec;
 
@@ -27,12 +28,12 @@ struct PCQueueTest : public ::testing::Test
       }
     }
 
-    std::cout << "Producers: " << producerCount << ", Consumers: " << consumerCount << std::endl;
+    // std::cout << "Producers: " << producerCount << ", Consumers: " << consumerCount << std::endl;
 
     if (consumerCount > producerCount)
     {
       const size_t overConsumed = consumerCount - producerCount;
-      std::cout << "Adding " << overConsumed << " producers to let waiting consumers consume" << std::endl;
+      // std::cout << "Adding " << overConsumed << " producers to let waiting consumers consume" << std::endl;
       /*EXPECT_EQ(pcq.currentSize(), 0); this needs other threads to finish*/
 
       for (size_t index = 0; index < overConsumed; ++index)
@@ -47,7 +48,7 @@ struct PCQueueTest : public ::testing::Test
       if (overProduced > pcq.maxSize())
       {
         const size_t producersOverMaxSize = overProduced - pcq.maxSize();
-        std::cout << "Adding " << producersOverMaxSize << " consumers to let waiting producers produce" << std::endl;
+        // std::cout << "Adding " << producersOverMaxSize << " consumers to let waiting producers produce" << std::endl;
 
         for (size_t index = 0;  index < producersOverMaxSize; ++index)
         {
@@ -62,7 +63,7 @@ struct PCQueueTest : public ::testing::Test
       thread.join();
     }
 
-    std::cout << "Queue size after all operations: " << pcq.currentSize() << std::endl;
+    // std::cout << "Queue size after all operations: " << pcq.currentSize() << std::endl;
     const size_t overProduced = producerCount - consumerCount;
     EXPECT_EQ(overProduced, pcq.currentSize());
   }

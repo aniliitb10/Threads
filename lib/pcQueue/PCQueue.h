@@ -9,6 +9,12 @@ class PCQueue
 public:
   explicit PCQueue(size_t size_);
 
+  PCQueue(const PCQueue& ) = delete;
+  PCQueue(PCQueue&& ) = delete;
+
+  PCQueue& operator=(const PCQueue& ) = delete;
+  PCQueue& operator=(PCQueue&& ) = delete;
+
   void consume();
   void produce();
   size_t maxSize() const;

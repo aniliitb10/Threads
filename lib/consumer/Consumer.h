@@ -11,6 +11,12 @@ public:
 
   Consumer(ContainerType& container_, std::condition_variable& cvEmpty_, std::condition_variable& cvFull_, std::mutex& mutex_);
 
+  Consumer(const Consumer& ) = delete;
+  Consumer(Consumer&& ) = delete;
+
+  Consumer& operator=(const Consumer& ) = delete;
+  Consumer& operator=(Consumer&& ) = delete;
+
   // Consumes the last element from the container
   void consume();
 
